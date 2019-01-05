@@ -54,7 +54,8 @@ class Game extends React.Component {
       stepNumber: 0,
       xIsNext: true,
       highlightSquare: [],
-      winner: ""
+      winner: "",
+      reverse: false
     };
   }
 
@@ -62,7 +63,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (this.calculateWinner(squares) || squares[i]) {
+    if (this.state.winner || squares[i]) {
       return;
     }
 
@@ -93,15 +94,14 @@ class Game extends React.Component {
   }
 
   jumpTo(step) {
+    if (this.state.history.length > this.state.stepNumber) {
+      this.setState({ winner: "" });
+    }
     this.setState(prevState => {
-      let highlight =
-        step + 1 !== prevState.history.length ? { highlightSquare: [] } : null;
-      return Object.assign(
-        {},
-        { stepNumber: step, xIsNext: step % 2 === 0 },
-        highlight
-      );
+      return Object.assign({}, { stepNumber: step, xIsNext: step % 2 === 0 });
     });
+    let squares = this.state.history.slice();
+    this.calculateWinner(squares[step].squares);
   }
 
   reverseHistory = () => {
@@ -111,7 +111,8 @@ class Game extends React.Component {
     const reversedHistory = this.state.history.slice().reverse();
     this.setState({
       history: reversedHistory,
-      stepNumber: reversedHistory.length - this.state.stepNumber
+      stepNumber: reversedHistory.length - this.state.stepNumber - 1,
+      reverse: !this.state.reverse
     });
   };
 
@@ -133,11 +134,13 @@ class Game extends React.Component {
         squares[a] === squares[b] &&
         squares[a] === squares[c]
       ) {
-        if (this.state.highlightSquare.length === 0) {
-          this.setState({ highlightSquare: lines[i], winner: squares[a] });
-        }
+        // if (this.state.highlightSquare.length === this.state.stepNumber) {
+        this.setState({ highlightSquare: lines[i], winner: squares[a] });
+        return;
+        // }
       }
     }
+    this.setState({ highlightSquare: [] });
   }
 
   render() {
@@ -146,7 +149,11 @@ class Game extends React.Component {
     const winner = this.state.winner;
 
     const moves = history.map((step, move) => {
-      const desc = move ? "Go to move #" + move : "Go to game start";
+      let index = null;
+      if (this.state.reverse) {
+        index = history.length - move - 1;
+      }
+      const desc = index ? "Go to move #" + index : "Go to game start";
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>
