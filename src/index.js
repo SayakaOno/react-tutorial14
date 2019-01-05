@@ -59,23 +59,25 @@ class Game extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
+
     squares[i] = this.state.xIsNext ? "X" : "0";
     let x = null;
     let y = null;
     if (i <= 2) {
       y = 1;
-    } else if (i <= 3 && i <= 5) {
+    } else if (i >= 3 && i <= 5) {
       y = 2;
     } else {
       y = 3;
     }
-    if (i % 3 === 1) {
-      x = 2;
-    } else if (i % 3 === 2) {
-      x = 3;
-    } else {
+    if (i % 3 === 0) {
       x = 1;
+    } else if (i % 3 === 1) {
+      x = 2;
+    } else {
+      x = 3;
     }
+
     this.setState({
       history: history.concat([{ squares: squares, location: `(${x}, ${y})` }]),
       stepNumber: history.length,
