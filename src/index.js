@@ -61,8 +61,24 @@ class Game extends React.Component {
       return;
     }
     squares[i] = this.state.xIsNext ? "X" : "0";
+    let x = null;
+    let y = null;
+    if (i <= 2) {
+      y = 1;
+    } else if (i <= 3 && i <= 5) {
+      y = 2;
+    } else {
+      y = 3;
+    }
+    if (i % 3 === 1) {
+      x = 2;
+    } else if (i % 3 === 2) {
+      x = 3;
+    } else {
+      x = 1;
+    }
     this.setState({
-      history: history.concat([{ squares: squares }]),
+      history: history.concat([{ squares: squares, location: `(${x}, ${y})` }]),
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext
     });
@@ -85,6 +101,7 @@ class Game extends React.Component {
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <span>{step.location}</span>
         </li>
       );
     });
